@@ -1,5 +1,5 @@
 /*
- * mdata.h: arquivo de inclus„o de uso apenas na geraÁ„o da libmthread
+ * mdata.h: arquivo de inclus√£o de uso apenas na gera√ß√£o da libmthread
  *
  * Esse arquivo pode ser modificado. ENTRETANTO, deve ser utilizada a TCB fornecida.
  *
@@ -7,15 +7,33 @@
 #ifndef __mdata__
 #define __mdata__
 
-/* N√O ALTERAR ESSA struct */
-typedef struct TCB { 
-	int  tid;		// identificador da thread 
-	int  state;	// estado em que a thread se encontra 
-					// 0: CriaÁ„o; 1: Apto; 2: ExecuÁ„o; 3: Bloqueado e 4: TÈrmino 
-	int  prio;		// prioridade da thread (0:alta; 1: mÈdia, 2:baixa) 
-	ucontext_t   context;	// contexto de execuÁ„o da thread (SP, PC, GPRs e recursos) 
-	struct TCB   *prev;		// ponteiro para o TCB anterior da lista 
-	struct TCB   *next;		// ponteiro para o prÛximo TCB da lista 
-} TCB_t; 
+ #include <ucontext.h>
 
+/* N√ÉO ALTERAR ESSA struct */
+typedef struct TCB {
+	int  tid;		// identificador da thread
+	int  state;	// estado em que a thread se encontra
+					// 0: Cria√ß√£o; 1: Apto; 2: Execu√ß√£o; 3: Bloqueado e 4: T√©rmino
+	int  prio;		// prioridade da thread (0:alta; 1: m√©dia, 2:baixa)
+	ucontext_t   context;	// contexto de execu√ß√£o da thread (SP, PC, GPRs e recursos)
+	struct TCB   *prev;		// ponteiro para o TCB anterior da lista
+	struct TCB   *next;		// ponteiro para o pr√≥ximo TCB da lista
+} TCB_t;
+
+/*
+	queueDescriptor: estrutura que serve como descritor para cada uma das filas de prioridade
+	possui um ponteiro para o in√≠cio (extra√ß√£o) e outro para o fim (inser√ß√£o)
+*/
+typedef struct queueDescriptor{ 
+	TCB *beginning;
+	TCB *end;
+}queueDescriptor_t;
+
+/*
+	threadController: estrutura que controla as threads
+*/
+typedef struct ThreadController
+{
+	TCB *queues; //vetor com tr√™s posi√ß√µes; uma para cada fila de prioridade
+}ThreadController_t;
 #endif

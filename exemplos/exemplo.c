@@ -2,7 +2,7 @@
 /*
  *	Programa de exemplo de uso da biblioteca sthread
  *
- *	Versão 1.0 - 25/03/2015
+ *	VersÃ£o 1.0 - 25/03/2015
  *
  *	Sistemas Operacionais I - www.inf.ufrgs.br
  *
@@ -27,11 +27,10 @@ int main(int argc, char *argv[]) {
     id0 = mcreate(0, func0, (void *)&i);
     id1 = mcreate(1, func1, (void *)&i);
 
-    printf("Eu sou a main após a criação de ID0 e ID1\n");
+    printf("Eu sou a main apï¿½s a criaï¿½ï¿½o de ID0 e ID1\n");
 
     mwait(id0);
     mwait(id1);
 
     printf("Eu sou a main voltando para terminar o programa\n");
 }
-
