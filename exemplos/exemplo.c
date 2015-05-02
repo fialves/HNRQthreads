@@ -29,8 +29,8 @@ int main(int argc, char *argv[]) {
 
     printf("Eu sou a main ap�s a cria��o de ID0 e ID1\n");
 
-//    mwait(id0);
-//    mwait(id1);
+    mwait(id0);
+    mwait(id1);
 
     printf("Eu sou a main voltando para terminar o programa\n");
 }

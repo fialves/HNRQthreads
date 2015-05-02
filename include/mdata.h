@@ -25,6 +25,9 @@
 /* Number of queues */
 #define QUEUE_COUNT 3
 
+/* Main Thread TID */
+#define MAIN_THREAD_TID 0
+
 /* NÃO ALTERAR ESSA struct */
 typedef struct TCB {
 	int  tid;		// identificador da thread
