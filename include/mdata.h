@@ -7,21 +7,23 @@
 #ifndef __mdata__
 #define __mdata__
 
- #include <ucontext.h>
-
- #define STACK_SIZE 128*1024 // 128kb
-
 #include <stdio.h>
-typedef int FHtid;
+#include <ucontext.h>
 
-typedef struct FHthread{
-    FHTid tid;
-    FHTid parent;
-    char stack[STACK_SIZE];
-    ucontext_t context;
-    struct objthread *prev;
-    struct objthread *next;
-}FHthread_t;
+/* Thread states */
+#define THREAD_STATE_CREATED 0
+#define THREAD_STATE_READY 1
+#define THREAD_STATE_EXECUTING 2
+#define THREAD_STATE_BLOCKED 3
+#define THREAD_STATE_TERMINATED 4
+
+/* Thread priorities */
+#define THREAD_PRIORITY_HIGH 0
+#define THREAD_PRIORITY_MEDIUM 1
+#define THREAD_PRIORITY_LOW 2
+
+/* Number of queues */
+#define QUEUE_COUNT 3
 
 /* NÃO ALTERAR ESSA struct */
 typedef struct TCB {
@@ -39,8 +41,8 @@ typedef struct TCB {
 	possui um ponteiro para o início (extração) e outro para o fim (inserção)
 */
 typedef struct queueDescriptor{
-	TCB *beginning;
-	TCB *end;
+	TCB_t *beginning;
+	TCB_t *end;
 }queueDescriptor_t;
 
 /*
@@ -48,7 +50,7 @@ typedef struct queueDescriptor{
 */
 typedef struct ThreadController
 {
-	TCB *queues; //vetor com três posições; uma para cada fila de prioridade
+	TCB_t *queues; //vetor com três posições; uma para cada fila de prioridade
 }ThreadController_t;
 
 #endif
