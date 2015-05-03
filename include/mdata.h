@@ -22,6 +22,13 @@
 #define THREAD_PRIORITY_MEDIUM 1
 #define THREAD_PRIORITY_LOW 2
 
+/* Scheduler operations */
+#define OPERATION_CREATE 0
+#define OPERATION_DISPATCH 1
+#define OPERATION_BLOCK 2
+#define OPERATION_YIELD 3
+#define OPERATION_FINISH 4
+
 /* Number of queues */
 #define QUEUE_COUNT 3
 
@@ -55,5 +62,10 @@ typedef struct ThreadController
 {
 	TCB_t *queues; //vetor com três posições; uma para cada fila de prioridade
 }ThreadController_t;
+
+queueDescriptor_t queuecreate (void);
+int queue(queueDescriptor_t *queue, TCB_t *tcb);
+int dequeue(queueDescriptor_t *queue, TCB_t *tcb);
+int isempty(queueDescriptor_t *queue);
 
 #endif

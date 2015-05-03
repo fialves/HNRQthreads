@@ -23,12 +23,13 @@ ucontext_t nextContext;
 int minit(void){
     lastTID = MAIN_THREAD_TID;
 
-    highPriorityQueue.beginning = &mainThread;
-    highPriorityQueue.end = &mainThread;
-    mediumPriorityQueue.beginning = NULL;
-    mediumPriorityQueue.end = NULL;
-    lowPriorityQueue.beginning = NULL;
-    lowPriorityQueue.end = NULL;
+    highPriorityQueue = queuecreate();
+    mediumPriorityQueue = queuecreate();
+    lowPriorityQueue = queuecreate();
+
+    mcreatemain(&mainThread);
+
+    getcontext(&nextContext); // O contexto sera controlado pelo escalonador
 
     controlThread[0] = highPriorityQueue.beginning;
     controlThread[1] = mediumPriorityQueue.beginning;
@@ -36,7 +37,7 @@ int minit(void){
 
     controller.queues = controlThread;
 
-    return mcreatemain(&mainThread);
+    return lastTID;
 }
 
 int mcreatemain(TCB_t *tcb){
@@ -45,9 +46,12 @@ int mcreatemain(TCB_t *tcb){
     tcb->prio = THREAD_PRIORITY_HIGH;
     tcb->next = NULL;
     tcb->prev = NULL;
+
+    queue(&highPriorityQueue,&mainThread);
+
     getcontext(&(mainThread.context));
 
-    return 0; // FIXME: What's the return!?
+    return tcb->tid;
 }
 
 int mcreate (int prio, void (*start)(void*), void *arg){
@@ -59,8 +63,12 @@ int mcreate (int prio, void (*start)(void*), void *arg){
     } else if(lastTID == MAIN_THREAD_TID){
         minit();
         /* minit DEBUG */
-        printf("\n========= MainThread is created =========\n");
-        printf("controlThread: %d\nhighPriorityQueue.Beginning: %d\nmainThread: %d\nnewThread: %d(before TID receiving)\n\n",(*controlThread[0]).tid, (*highPriorityQueue.beginning).tid, mainThread.tid, newThread.tid);
+//        printf("\n========= MainThread is created =========\n");
+//        printf(">> TID test:\n");
+//        printf("controlThread: %d\n",(*controlThread[0]).tid);
+//        printf("highPriorityQueue.Beginning: %d\n", (*highPriorityQueue.beginning).tid);
+//        printf("mainThread: %d\n", mainThread.tid);
+//        printf("newThread: %d(before TID receiving)\n\n", newThread.tid);
     }
     int executed = 0;
     newThread.tid = ++lastTID;
@@ -75,19 +83,20 @@ int mcreate (int prio, void (*start)(void*), void *arg){
     newThread.context.uc_link = &nextContext;
     makecontext(&(newThread.context),(void (*)(void))start, 1, arg);
 
-    getcontext(&nextContext);
+    getcontext(&nextContext); // TODO: nextContext  apontar para o escalonador para que ele diga quem sera o proximo contexto em execucao
 
-    // TODO: trocar o codigo abaixo pelo escalonador
+    // TODO: adicionar thread na fila de aptos;
+
     if(executed == 0){
         executed = 1;
         setcontext(&(newThread.context));
     }
 
-    // TODO: adicionar thread na fila de aptos
+    // TODO: escalonador
 
     /* newThread DEBUG */
-    printf("========= Thread is created =========\n");
-    printf("TID=%d \n",newThread.tid);
+//    printf("========= Thread is created =========\n");
+//    printf("TID=%d \n",newThread.tid);
 
     return newThread.tid;
 }
@@ -103,18 +112,28 @@ int mwait(int tid){
 }
 
 int scheduler(int operation){
+    // TODO: nextContext apontar pro proximo contexto
     // TODO: implementar politica
     switch(operation){
-        case 0: // thread foi criada
-            executingThread->state = THREAD_STATE_READY;
+        case OPERATION_CREATE:
+            executingThread->state = THREAD_STATE_CREATED;
             // TODO: colocar na fila conforme a prioridade
             break;
-        case 1:
-             executingThread->state = THREAD_STATE_BLOCKED;
-             break;
-        case 2:
-            //executingThread->state =
+        case OPERATION_BLOCK:
+            executingThread->state = THREAD_STATE_BLOCKED;
+            // TODO: colocar na fila conforme a prioridade
             break;
+        case OPERATION_DISPATCH:
+            executingThread->state = THREAD_STATE_EXECUTING;
+            break;
+        case OPERATION_YIELD:
+            executingThread->state = THREAD_STATE_READY;
+            break;
+        case OPERATION_FINISH:
+            executingThread->state = THREAD_STATE_TERMINATED;
+            break;
+        //default:
+            // TODO: ERRO!
     }
 
     return 0;
